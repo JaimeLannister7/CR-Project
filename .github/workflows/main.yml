@@ -2,8 +2,8 @@ name: CR Auto Update
 
 on:
   schedule:
-    - cron: '0 */2 * * *'  # প্রতি ২ ঘণ্টা পর পর চলবে
-  workflow_dispatch:      # প্রয়োজনে ম্যানুয়ালি রান করার জন্য
+    - cron: '0 */2 * * *'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -23,14 +23,12 @@ jobs:
         run: pip install requests
 
       - name: Run Collector
-        env:
-          MY_API_KEY: ${{ secrets.CR_API_KEY }}
         run: python collector.py
 
       - name: Save Data
         run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -m "Auto update data" || exit 0
           git push
