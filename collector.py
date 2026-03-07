@@ -3,7 +3,7 @@ import json
 import os
 
 # আপনার API Key এবং প্লেয়ার লিস্ট (এগুলো আগের মতোই থাকবে)
-API_KEY = "YOUR_API_KEY_HERE" 
+API_KEY = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6IjlkNWE1NTQ5LWZhM2YtNDJiNS05YzM3LTdjZjYzOWQ4NGNlNSIsImlhdCI6MTc3MjgxNDcwNywic3ViIjoiZGV2ZWxvcGVyLzY4ODAxNjIxLWI4NjgtYjA1OC0zZTI5LWRhMDNhNGMzN2U0YiIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyIxMDMuMTcwLjE3My4zNCJdLCJ0eXBlIjoiY2xpZW50In1dfQ.nfL5j_cVAJtnuIZwN0YoQtvUyrd0uBSYfpBwbl1bIvJ2rxFOEbTKZvraMWJQSZqJTRP7iOM3MSDloBW017nKtg" 
 PLAYER_FILE = "players.txt"
 DATA_DIR = "Data"
 
@@ -52,3 +52,4 @@ def fetch_and_save():
         json.dump(summary_data, f, indent=4)
 
 fetch_and_save()
+
