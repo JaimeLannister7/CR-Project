@@ -4,8 +4,8 @@ import os
 from collections import Counter
 from datetime import datetime
 
-# আপনার নতুন এবং সঠিক আইপি টোকেন
-API_KEY = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6ImY5ODRlMDI0LTMxNGEtNDRmYy05ODg1LTg2MmZiMDMyY2Y4YiIsImlhdCI6MTc3MjgxNDcwNywic3ViIjoiZGV2ZWxvcGVyLzY4ODAxNjIxLWI4NjgtYjA1OC0zZTI5LWRhMDNhNGMzN2U0YiIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyIxMjguMTk5LjIzMS41NyJdLCJ0eXBlIjoiY2xpZW50In1dfQ.-d8sebw5WPjmkZ-MVox-teV7IWXnzsJErlxyb5NwL2aUQ8XBKWLJfkVz8uuib5lFONKQuKRdSVhE1qec0UYTcw"
+# আপনার সেই সঠিক প্রক্সি-রেডি টোকেন
+API_KEY = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6ImY5ODRlMDI0LTMxNGEtNDRmYy05ODg1LTg2MmZiMDMyY2Y4YiIsImlhdCI6MTc3Mjg5NjA5OSwic3ViIjoiZGV2ZWxvcGVyLzY4ODAxNjIxLWI4NjgtYjA1OC0zZTI5LWRhMDNhNGMzN2U0YiIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyIxMjguMTk5LjIzMS41NyJdLCJ0eXBlIjoiY2xpZW50In1dfQ.-d8sebw5WPjmkZ-MVox-teV7IWXnzsJErlxyb5NwL2aUQ8XBKWLJfkVz8uuib5lFONKQuKRdSVhE1qec0UYTcw"
 PLAYER_FILE = "players.txt"
 DATA_DIR = "Data"
 
@@ -20,13 +20,14 @@ def fetch_and_save():
 
     for tag in tags:
         clean_tag = tag.replace("#", "")
-        # RoyaleAPI Proxy লিঙ্ক
         url = f"https://proxy.royaleapi.dev/v1/players/%23{clean_tag}/battlelog"
         headers = {"Authorization": f"Bearer {API_KEY}"}
         response = requests.get(url, headers=headers)
         
         if response.status_code == 200:
             new_battles = response.json()
+            if not new_battles: continue
+            
             file_path = os.path.join(DATA_DIR, f"{clean_tag}.json")
             existing_battles = []
             if os.path.exists(file_path):
@@ -39,7 +40,7 @@ def fetch_and_save():
             existing_battles.sort(key=lambda x: x['battleTime'])
             with open(file_path, "w") as f: json.dump(existing_battles, f, indent=4)
             
-            # --- এনালাইসিস ---
+            # এনালাইসিস
             wins, losses, draws = 0, 0, 0
             units, spells, buildings = [], [], []
             played_rivals, won_rivals, lost_rivals, draw_rivals = [], [], [], []
@@ -84,6 +85,7 @@ def fetch_and_save():
                 "h_win": get_top(won_rivals), "h_loss": get_top(lost_rivals), "h_draw": get_top(draw_rivals)
             })
 
-    with open(os.path.join(DATA_DIR, "summary.json"), "w") as f: json.dump(summary_data, f, indent=4)
+    with open(os.path.join(DATA_DIR, "summary.json"), "w") as f:
+        json.dump(summary_data, f, indent=4)
 
 fetch_and_save()
