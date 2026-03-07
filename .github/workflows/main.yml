@@ -27,10 +27,10 @@ jobs:
           MY_API_KEY: ${{ secrets.CR_API_KEY }}
         run: python collector.py
 
-      - name: Save Results
+      - name: Save Data
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
-          git add Data/*.json
-          git commit -m "Auto update match data" || echo "No changes"
+          git add -A
+          git commit -m "Auto update data" || exit 0
           git push
