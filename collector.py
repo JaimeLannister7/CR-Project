@@ -4,8 +4,8 @@ import os
 from collections import Counter
 from datetime import datetime
 
-# আপনার টোকেন
-API_KEY = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6IjlkNWE1NTQ5LWZhM2YtNDJiNS05YzM3LTdjZjYzOWQ4NGNlNSIsImlhdCI6MTc3MjgxNDcwNywic3ViIjoiZGV2ZWxvcGVyLzY4ODAxNjIxLWI4NjgtYjA1OC0zZTI5LWRhMDNhNGMzN2U0YiIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyIxMDMuMTcwLjE3My4zNCJdLCJ0eXBlIjoiY2xpZW50In1dfQ.nfL5j_cVAJtnuIZwN0YoQtvUyrd0uBSYfpBwbl1bIvJ2rxFOEbTKZvraMWJQSZqJTRP7iOM3MSDloBW017nKtg"
+# আপনার নতুন এবং সঠিক আইপি টোকেন
+API_KEY = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6ImY5ODRlMDI0LTMxNGEtNDRmYy05ODg1LTg2MmZiMDMyY2Y4YiIsImlhdCI6MTc3MjgxNDcwNywic3ViIjoiZGV2ZWxvcGVyLzY4ODAxNjIxLWI4NjgtYjA1OC0zZTI5LWRhMDNhNGMzN2U0YiIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyIxMjguMTk5LjIzMS41NyJdLCJ0eXBlIjoiY2xpZW50In1dfQ.-d8sebw5WPjmkZ-MVox-teV7IWXnzsJErlxyb5NwL2aUQ8XBKWLJfkVz8uuib5lFONKQuKRdSVhE1qec0UYTcw"
 PLAYER_FILE = "players.txt"
 DATA_DIR = "Data"
 
@@ -14,17 +14,13 @@ BUILDINGS = ["Cannon", "Inferno Tower", "Tesla", "Elixir Collector", "Goblin Cag
 
 def fetch_and_save():
     if not os.path.exists(DATA_DIR): os.makedirs(DATA_DIR)
-    
-    # নিশ্চিত করুন আপনার গিটহাবে players.txt ফাইলটি আছে এবং তাতে প্লেয়ার ট্যাগ দেওয়া আছে
-    if not os.path.exists(PLAYER_FILE):
-        return
-        
+    if not os.path.exists(PLAYER_FILE): return
     with open(PLAYER_FILE, "r") as f: tags = [line.strip() for line in f if line.strip()]
     summary_data = []
 
     for tag in tags:
         clean_tag = tag.replace("#", "")
-        # আইপি বাইপাস করার জন্য RoyaleAPI Proxy ব্যবহার করা হলো
+        # RoyaleAPI Proxy লিঙ্ক
         url = f"https://proxy.royaleapi.dev/v1/players/%23{clean_tag}/battlelog"
         headers = {"Authorization": f"Bearer {API_KEY}"}
         response = requests.get(url, headers=headers)
