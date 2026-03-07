@@ -67,4 +67,5 @@ def collect_data():
 if __name__ == "__main__":
     collect_data()
     print("-" * 50)
-    input("সব কাজ শেষ! এন্টার চেপে বন্ধ করুন...")
+
+   
