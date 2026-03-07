@@ -3,9 +3,14 @@ import json
 import os
 from collections import Counter
 
-API_KEY = "YOUR_API_KEY_HERE" 
+# আপনার দেওয়া নতুন API Token
+API_KEY = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6IjlkNWE1NTQ5LWZhM2YtNDJiNS05YzM3LTdjZjYzOWQ4NGNlNSIsImlhdCI6MTc3MjgxNDcwNywic3ViIjoiZGV2ZWxvcGVyLzY4ODAxNjIxLWI4NjgtYjA1OC0zZTI5LWRhMDNhNGMzN2U0YiIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyIxMDMuMTcwLjE3My4zNCJdLCJ0eXBlIjoiY2xpZW50In1dfQ.nfL5j_cVAJtnuIZwN0YoQtvUyrd0uBSYfpBwbl1bIvJ2rxFOEbTKZvraMWJQSZqJTRP7iOM3MSDloBW017nKtg" 
 PLAYER_FILE = "players.txt"
 DATA_DIR = "Data"
+
+# কার্ডের ধরণ ফিল্টার করার জন্য তালিকা
+SPELLS = ["Zap", "The Log", "Fireball", "Arrows", "Rocket", "Lightning", "Poison", "Freeze", "Tornado", "Earthquake", "Barbarian Barrel", "Giant Snowball", "Royal Delivery", "Void", "Rage", "Mirror", "Clone", "Graveyard", "Heal Spirit"]
+BUILDINGS = ["Cannon", "Inferno Tower", "Tesla", "Elixir Collector", "Goblin Cage", "Bomb Tower", "Mortar", "X-Bow", "Barbarian Hut", "Goblin Hut", "Furnace", "Goblin Drill", "Cannon Cart"]
 
 def fetch_and_save():
     if not os.path.exists(DATA_DIR):
@@ -39,10 +44,11 @@ def fetch_and_save():
             with open(file_path, "w") as f:
                 json.dump(existing_battles, f, indent=4)
             
-            # --- বিস্তারিত ডাটা ক্যালকুলেশন ---
+            # --- বিস্তারিত এনালাইসিস ---
             wins, losses, draws = 0, 0, 0
-            all_cards, played_rivals, won_rivals, lost_rivals, draw_rivals = [], [], [], [], []
-            win_streak, loss_streak, max_win_s, max_loss_s = 0, 0, 0, 0
+            units, spells, buildings = [], [], []
+            played_rivals, won_rivals, lost_rivals, draw_rivals = [], [], [], []
+            win_s, loss_s, max_w, max_l = 0, 0, 0, 0
             
             existing_battles.sort(key=lambda x: x['battleTime'])
             
@@ -52,37 +58,35 @@ def fetch_and_save():
                 op_name = b['opponent'][0]['name']
                 played_rivals.append(op_name)
                 
+                # কার্ড ক্লাসিফিকেশন
                 for card in b['team'][0]['cards']:
-                    all_cards.append(card['name'])
+                    c_name = card['name']
+                    if c_name in SPELLS: spells.append(c_name)
+                    elif c_name in BUILDINGS: buildings.append(c_name)
+                    else: units.append(c_name)
                 
+                # জয়-পরাজয় ও স্ট্রাইক হিসাব
                 if my_c > op_c:
-                    wins += 1
-                    won_rivals.append(op_name)
-                    win_streak += 1
-                    max_win_s = max(max_win_s, win_streak)
-                    loss_streak = 0
+                    wins += 1; won_rivals.append(op_name); win_s += 1; max_w = max(max_w, win_s); loss_s = 0
                 elif my_c < op_c:
-                    losses += 1
-                    lost_rivals.append(op_name)
-                    loss_streak += 1
-                    max_loss_s = max(max_loss_s, loss_streak)
-                    win_streak = 0
+                    losses += 1; lost_rivals.append(op_name); loss_s += 1; max_l = max(max_l, loss_s); win_s = 0
                 else:
-                    draws += 1
-                    draw_rivals.append(op_name)
-                    win_streak = 0
-                    loss_streak = 0
+                    draws += 1; draw_rivals.append(op_name); win_s = 0; loss_s = 0
 
-            def get_top(arr): return Counter(arr).most_common(1)[0][0] if arr else "N/A"
-            top_cards = [c[0] for c in Counter(all_cards).most_common(5)]
-            player_name = existing_battles[-1]['team'][0]['name'] if existing_battles else clean_tag
+            def get_top(arr, count=1): 
+                res = [c[0] for c in Counter(arr).most_common(count)]
+                return ", ".join(res) if res else "None"
+
+            p_name = existing_battles[-1]['team'][0]['name'] if existing_battles else clean_tag
 
             summary_data.append({
-                "name": player_name,
+                "name": p_name,
                 "total": len(existing_battles),
                 "win": wins, "loss": losses, "draw": draws,
-                "w_s": max_win_s, "l_s": max_loss_s,
-                "top_cards": ", ".join(top_cards),
+                "w_s": max_w, "l_s": max_l,
+                "top_units": get_top(units, 5),
+                "top_spells": get_top(spells, 3),
+                "top_buildings": get_top(buildings, 2),
                 "h_played": get_top(played_rivals),
                 "h_win": get_top(won_rivals),
                 "h_loss": get_top(lost_rivals),
