@@ -3,76 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CR Ultimate Live Dashboard</title>
+    <title>CR Pro Tracker v2</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0f172a; color: #f8fafc; padding: 10px; font-size: 13px; }
-        .container { width: 100%; margin: auto; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; background: #1e293b; border-radius: 8px; margin-top: 15px; }
-        th, td { padding: 12px; border: 1px solid #334155; text-align: center; }
-        th { background: #ef4444; color: white; text-transform: uppercase; font-size: 11px; }
-        .rival-box { font-size: 11px; color: #94a3b8; text-align: left; line-height: 1.5; }
-        .cards-box { font-size: 10px; color: #cbd5e1; text-align: left; }
+        body { font-family: sans-serif; background: #0f172a; color: #f8fafc; padding: 5px; font-size: 12px; }
+        .container { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; background: #1e293b; }
+        th, td { padding: 8px; border: 1px solid #334155; text-align: left; }
+        th { background: #ef4444; color: white; text-align: center; }
         .win { color: #22c55e; font-weight: bold; }
         .loss { color: #f87171; font-weight: bold; }
-        .streak { color: #fbbf24; font-weight: bold; }
-        h2 { color: #ef4444; margin-bottom: 5px; }
+        .time { color: #38bdf8; font-size: 10px; }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>CR Pro Tracker</h2>
-        <p style="font-size: 11px; color: #64748b;">অটোমেটিক আপডেট (প্রতি ২ ঘণ্টা) | মোবাইল ও পিসি ভিউ</p>
         <table id="mainTable">
             <thead>
                 <tr>
-                    <th>Player</th>
-                    <th>Total</th>
-                    <th>W / L / D</th>
-                    <th>Streak (W/L)</th>
+                    <th>Player & Last Match</th>
+                    <th>Total (W/L/D)</th>
+                    <th>Streak</th>
                     <th>Highest Rivals</th>
                     <th>Top Cards (U/S/B)</th>
                 </tr>
             </thead>
-            <tbody id="tableBody">
-                <tr><td colspan="6">Loading live data...</td></tr>
-            </tbody>
+            <tbody id="tableBody"></tbody>
         </table>
     </div>
-
     <script>
-        async function loadData() {
-            try {
-                // ক্যাশ এড়াতে টাইমস্ট্যাম্পসহ ফেচ করা
-                const response = await fetch('./Data/summary.json?v=' + Date.now());
-                const data = await response.json();
-                const tableBody = document.getElementById('tableBody');
-                tableBody.innerHTML = '';
-                
-                data.forEach(p => {
-                    const row = `<tr>
-                        <td><strong>${p.name}</strong></td>
-                        <td>${p.total}</td>
-                        <td><span class="win">${p.win}</span> / <span class="loss">${p.loss}</span> / ${p.draw}</td>
-                        <td class="streak">${p.w_s} / ${p.l_s}</td>
-                        <td class="rival-box">
-                            • Played: ${p.h_played}<br>
-                            • Win vs: ${p.h_win}<br>
-                            • Loss vs: ${p.h_loss}<br>
-                            • Draw vs: ${p.h_draw}
-                        </td>
-                        <td class="cards-box">
-                            <strong>U:</strong> ${p.top_units}<br>
-                            <strong>S:</strong> ${p.top_spells}<br>
-                            <strong>B:</strong> ${p.top_buildings}
-                        </td>
-                    </tr>`;
-                    tableBody.innerHTML += row;
-                });
-            } catch (e) {
-                document.getElementById('tableBody').innerHTML = '<tr><td colspan="6">Error loading data. Run Actions first.</td></tr>';
-            }
+        async function load() {
+            const r = await fetch('./Data/summary.json?v=' + Date.now());
+            const data = await r.json();
+            const body = document.getElementById('tableBody');
+            body.innerHTML = '';
+            data.forEach(p => {
+                body.innerHTML += `<tr>
+                    <td><strong>${p.name}</strong><br><span class="time">Last: ${p.last_match}</span></td>
+                    <td>${p.total}<br>(<span class="win">${p.win}</span>/<span class="loss">${p.loss}</span>/${p.draw})</td>
+                    <td>W:${p.w_s}<br>L:${p.l_s}</td>
+                    <td style="font-size:10px">
+                        P: ${p.h_played}<br>W: ${p.h_win}<br>L: ${p.h_loss}
+                    </td>
+                    <td style="font-size:10px">
+                        <strong>U:</strong> ${p.top_units}<br>
+                        <strong>S:</strong> ${p.top_spells}<br>
+                        <strong>B:</strong> ${p.top_buildings}
+                    </td>
+                </tr>`;
+            });
         }
-        loadData();
+        load();
     </script>
 </body>
 </html>
