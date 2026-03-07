@@ -1,0 +1,36 @@
+name: CR Auto Update
+
+on:
+  schedule:
+    - cron: '0 */2 * * *'  # প্রতি ২ ঘণ্টা পর পর চলবে
+  workflow_dispatch:      # প্রয়োজনে ম্যানুয়ালি রান করার জন্য
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run Collector
+        env:
+          MY_API_KEY: ${{ secrets.CR_API_KEY }}
+        run: python collector.py
+
+      - name: Save Results
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add Data/*.json
+          git commit -m "Auto update match data" || echo "No changes"
+          git push
