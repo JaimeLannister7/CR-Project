@@ -3,48 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CR Tracker Live Dashboard</title>
+    <title>CR Ultimate Dashboard</title>
     <style>
-        body { font-family: sans-serif; background: #1a1a2e; color: white; text-align: center; padding: 20px; }
-        .container { max-width: 600px; margin: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #16213e; border-radius: 10px; overflow: hidden; }
-        th, td { padding: 15px; border: 1px solid #0f3460; text-align: center; }
-        th { background: #e94560; }
-        h1 { color: #e94560; }
+        body { font-family: sans-serif; background: #0f172a; color: #f8fafc; padding: 10px; font-size: 13px; }
+        .container { width: 100%; margin: auto; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; background: #1e293b; border-radius: 8px; }
+        th, td { padding: 10px; border: 1px solid #334155; text-align: center; }
+        th { background: #ef4444; color: white; }
+        .rival-box { font-size: 11px; color: #94a3b8; text-align: left; }
+        .win { color: #22c55e; font-weight: bold; }
+        .loss { color: #ef4444; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Clash Royale Tracker</h1>
-        <p>প্রতি ২ ঘণ্টা পর পর অটোমেটিক আপডেট হয়।</p>
-        <table id="statsTable">
+        <h2>CR Pro Player Stats</h2>
+        <table id="mainTable">
             <thead>
                 <tr>
-                    <th>Player Name</th>
-                    <th>Total Matches Played</th>
+                    <th>Player</th>
+                    <th>Total</th>
+                    <th>W / L / D</th>
+                    <th>Streaks (W/L)</th>
+                    <th>Highest Rivals (P/W/L/D)</th>
+                    <th>Top 5 Cards</th>
                 </tr>
             </thead>
-            <tbody id="tableBody">
-                </tbody>
+            <tbody id="tableBody"></tbody>
         </table>
     </div>
-
     <script>
-        async function loadStats() {
-            const response = await fetch('./Data/summary.json');
-            const data = await response.json();
-            const tableBody = document.getElementById('tableBody');
-            
-            tableBody.innerHTML = '';
-            data.forEach(player => {
-                const row = `<tr>
-                    <td>${player.name}</td>
-                    <td>${player.total_matches}</td>
+        async function load() {
+            const r = await fetch('./Data/summary.json?v=' + Date.now());
+            const data = await r.json();
+            const body = document.getElementById('tableBody');
+            body.innerHTML = '';
+            data.forEach(p => {
+                body.innerHTML += `<tr>
+                    <td><strong>${p.name}</strong></td>
+                    <td>${p.total}</td>
+                    <td><span class="win">${p.win}</span> / <span class="loss">${p.loss}</span> / ${p.draw}</td>
+                    <td>${p.w_s} / ${p.l_s}</td>
+                    <td class="rival-box">
+                        Played: ${p.h_played}<br>Win vs: ${p.h_win}<br>Loss vs: ${p.h_loss}<br>Draw vs: ${p.h_draw}
+                    </td>
+                    <td style="font-size:10px">${p.top_cards}</td>
                 </tr>`;
-                tableBody.innerHTML += row;
             });
         }
-        loadStats();
+        load();
     </script>
 </body>
 </html>
