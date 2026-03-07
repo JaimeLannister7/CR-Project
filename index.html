@@ -1,59 +1,116 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CR Pro Tracker v2</title>
-    <style>
-        body { font-family: sans-serif; background: #0f172a; color: #f8fafc; padding: 5px; font-size: 12px; }
-        .container { width: 100%; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; background: #1e293b; }
-        th, td { padding: 8px; border: 1px solid #334155; text-align: left; }
-        th { background: #ef4444; color: white; text-align: center; }
-        .win { color: #22c55e; font-weight: bold; }
-        .loss { color: #f87171; font-weight: bold; }
-        .time { color: #38bdf8; font-size: 10px; }
-    </style>
+
+<meta charset="UTF-8">
+<title>CR Tracker</title>
+
+<style>
+
+body{
+font-family:sans-serif;
+background:#0f172a;
+color:white;
+padding:10px
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+background:#1e293b
+}
+
+th,td{
+padding:8px;
+border:1px solid #334155
+}
+
+th{
+background:#ef4444
+}
+
+.win{color:#22c55e}
+.loss{color:#f87171}
+
+</style>
+
 </head>
+
 <body>
-    <div class="container">
-        <h2>CR Pro Tracker</h2>
-        <table id="mainTable">
-            <thead>
-                <tr>
-                    <th>Player & Last Match</th>
-                    <th>Total (W/L/D)</th>
-                    <th>Streak</th>
-                    <th>Highest Rivals</th>
-                    <th>Top Cards (U/S/B)</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    </div>
-    <script>
-        async function load() {
-            const r = await fetch('./Data/summary.json?v=' + Date.now());
-            const data = await r.json();
-            const body = document.getElementById('tableBody');
-            body.innerHTML = '';
-            data.forEach(p => {
-                body.innerHTML += `<tr>
-                    <td><strong>${p.name}</strong><br><span class="time">Last: ${p.last_match}</span></td>
-                    <td>${p.total}<br>(<span class="win">${p.win}</span>/<span class="loss">${p.loss}</span>/${p.draw})</td>
-                    <td>W:${p.w_s}<br>L:${p.l_s}</td>
-                    <td style="font-size:10px">
-                        P: ${p.h_played}<br>W: ${p.h_win}<br>L: ${p.h_loss}
-                    </td>
-                    <td style="font-size:10px">
-                        <strong>U:</strong> ${p.top_units}<br>
-                        <strong>S:</strong> ${p.top_spells}<br>
-                        <strong>B:</strong> ${p.top_buildings}
-                    </td>
-                </tr>`;
-            });
-        }
-        load();
-    </script>
+
+<h2>Clash Royale Tracker</h2>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Player</th>
+<th>Total</th>
+<th>W/L/D</th>
+<th>Top Units</th>
+<th>Top Spells</th>
+<th>Top Buildings</th>
+<th>Last Match</th>
+
+</tr>
+
+</thead>
+
+<tbody id="body">
+
+</tbody>
+
+</table>
+
+<script>
+
+async function load(){
+
+const r=await fetch("./Data/summary.json?v="+Date.now())
+
+const data=await r.json()
+
+let html=""
+
+data.forEach(p=>{
+
+html+=`
+
+<tr>
+
+<td>${p.name}</td>
+
+<td>${p.total}</td>
+
+<td>
+<span class="win">${p.win}</span> /
+<span class="loss">${p.loss}</span> /
+${p.draw}
+</td>
+
+<td>${p.top_units}</td>
+
+<td>${p.top_spells}</td>
+
+<td>${p.top_buildings}</td>
+
+<td>${p.last_match}</td>
+
+</tr>
+
+`
+
+})
+
+document.getElementById("body").innerHTML=html
+
+}
+
+load()
+
+</script>
+
 </body>
 </html>
