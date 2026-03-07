@@ -1,9 +1,10 @@
 import requests
 import json
 import os
+from collections import Counter
 
-# আপনার API Key এবং প্লেয়ার লিস্ট (এগুলো আগের মতোই থাকবে)
-API_KEY = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6IjlkNWE1NTQ5LWZhM2YtNDJiNS05YzM3LTdjZjYzOWQ4NGNlNSIsImlhdCI6MTc3MjgxNDcwNywic3ViIjoiZGV2ZWxvcGVyLzY4ODAxNjIxLWI4NjgtYjA1OC0zZTI5LWRhMDNhNGMzN2U0YiIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyIxMDMuMTcwLjE3My4zNCJdLCJ0eXBlIjoiY2xpZW50In1dfQ.nfL5j_cVAJtnuIZwN0YoQtvUyrd0uBSYfpBwbl1bIvJ2rxFOEbTKZvraMWJQSZqJTRP7iOM3MSDloBW017nKtg" 
+# আপনার API Key এবং প্লেয়ার লিস্ট
+API_KEY = "YOUR_API_KEY_HERE" 
 PLAYER_FILE = "players.txt"
 DATA_DIR = "Data"
 
@@ -26,30 +27,79 @@ def fetch_and_save():
             new_battles = response.json()
             file_path = os.path.join(DATA_DIR, f"{clean_tag}.json")
             
-            # আগের ডেটা লোড করা
             existing_battles = []
             if os.path.exists(file_path):
                 with open(file_path, "r") as f:
                     existing_battles = json.load(f)
             
-            # নতুন ম্যাচ যোগ করা (ডুপ্লিকেট বাদ দিয়ে)
-            all_battles = existing_battles
+            # নতুন ম্যাচ যোগ করা
             existing_times = {b['battleTime'] for b in existing_battles}
-            
             for battle in new_battles:
                 if battle['battleTime'] not in existing_times:
-                    all_battles.append(battle)
+                    existing_battles.append(battle)
             
             with open(file_path, "w") as f:
-                json.dump(all_battles, f, indent=4)
+                json.dump(existing_battles, f, indent=4)
             
-            # সামারির জন্য প্লেয়ারের নাম ও মোট ম্যাচ সংখ্যা রাখা
-            player_name = all_battles[0]['team'][0]['name'] if all_battles else clean_tag
-            summary_data.append({"name": player_name, "total_matches": len(all_battles)})
+            # --- বিস্তারিত এনালাইসিস শুরু ---
+            wins = 0
+            losses = 0
+            draws = 0
+            all_cards = []
+            opponents = []
+            current_win_streak = 0
+            current_loss_streak = 0
+            max_win_streak = 0
+            max_loss_streak = 0
+            
+            # ম্যাচগুলো সময় অনুযায়ী সাজানো (পুরানো থেকে নতুন)
+            existing_battles.sort(key=lambda x: x['battleTime'])
+            
+            for b in existing_battles:
+                my_crowns = b['team'][0]['crowns']
+                op_crowns = b['opponent'][0]['crowns']
+                op_name = b['opponent'][0]['name']
+                opponents.append(op_name)
+                
+                # কার্ড সংগ্রহ
+                for card in b['team'][0]['cards']:
+                    all_cards.append(card['name'])
+                
+                # হার-জিত ও স্ট্রাইক হিসাব
+                if my_crowns > op_crowns:
+                    wins += 1
+                    current_win_streak += 1
+                    max_win_streak = max(max_win_streak, current_win_streak)
+                    current_loss_streak = 0
+                elif my_crowns < op_crowns:
+                    losses += 1
+                    current_loss_streak += 1
+                    max_loss_streak = max(max_loss_streak, current_loss_streak)
+                    current_win_streak = 0
+                else:
+                    draws += 1
+                    current_win_streak = 0
+                    current_loss_streak = 0
 
-    # মোবাইল ড্যাশবোর্ডের জন্য সামারি ফাইল তৈরি
+            # টপ ৫ কার্ড এবং প্রধান প্রতিপক্ষ
+            top_cards = [c[0] for c in Counter(all_cards).most_common(5)]
+            top_opponent = Counter(opponents).most_common(1)[0][0] if opponents else "N/A"
+            player_name = existing_battles[-1]['team'][0]['name'] if existing_battles else clean_tag
+
+            summary_data.append({
+                "name": player_name,
+                "total": len(existing_battles),
+                "win": wins,
+                "loss": losses,
+                "draw": draws,
+                "win_streak": max_win_streak,
+                "loss_streak": max_loss_streak,
+                "top_cards": ", ".join(top_cards),
+                "rival": top_opponent
+            })
+
+    # সামারি ফাইল সেভ করা (এটিই মোবাইলে দেখাবে)
     with open(os.path.join(DATA_DIR, "summary.json"), "w") as f:
         json.dump(summary_data, f, indent=4)
 
 fetch_and_save()
-
