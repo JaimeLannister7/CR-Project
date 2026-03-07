@@ -1,27 +1,50 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>CR Tracker Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CR Tracker Live Dashboard</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a2e; color: white; text-align: center; padding: 20px; }
-        .container { max-width: 800px; margin: auto; }
+        body { font-family: sans-serif; background: #1a1a2e; color: white; text-align: center; padding: 20px; }
+        .container { max-width: 600px; margin: auto; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #16213e; border-radius: 10px; overflow: hidden; }
-        th, td { padding: 12px; border: 1px solid #0f3460; text-align: left; }
-        th { background: #e94560; color: white; }
-        tr:nth-child(even) { background: #1a1a2e; }
+        th, td { padding: 15px; border: 1px solid #0f3460; text-align: center; }
+        th { background: #e94560; }
         h1 { color: #e94560; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Clash Royale Live Stats</h1>
-        <p>অটোমেশন প্রতি ২ ঘণ্টা পর পর এই টেবিলটি আপডেট করবে।</p>
-        <div id="stats-table">Loading data...</div>
+        <h1>Clash Royale Tracker</h1>
+        <p>প্রতি ২ ঘণ্টা পর পর অটোমেটিক আপডেট হয়।</p>
+        <table id="statsTable">
+            <thead>
+                <tr>
+                    <th>Player Name</th>
+                    <th>Total Matches Played</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                </tbody>
+        </table>
     </div>
 
     <script>
-        // এখানে আপনার গিটহাবের ডেটা থেকে টেবিল তৈরি করার স্ক্রিপ্ট থাকবে
-        document.getElementById('stats-table').innerHTML = "<p style='color: #f1c40f;'>ডেটা প্রসেসিং হচ্ছে... প্রথম ২ ঘণ্টার রান শেষ হলে এখানে টেবিল দেখা যাবে।</p>";
+        async function loadStats() {
+            const response = await fetch('Data/summary.json');
+            const data = await response.json();
+            const tableBody = document.getElementById('tableBody');
+            
+            tableBody.innerHTML = '';
+            data.forEach(player => {
+                const row = `<tr>
+                    <td>${player.name}</td>
+                    <td>${player.total_matches}</td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+        loadStats();
     </script>
 </body>
 </html>
