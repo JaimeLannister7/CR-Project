@@ -31,7 +31,7 @@
 
     <script>
         async function loadStats() {
-            const response = await fetch('Data/summary.json');
+            const response = await fetch('./Data/summary.json');
             const data = await response.json();
             const tableBody = document.getElementById('tableBody');
             
